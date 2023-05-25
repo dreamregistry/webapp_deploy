@@ -1,0 +1,5 @@
+projectId: 64663a029a0a66ed8acfac5a
+workspace: hereya-dev
+devPackages:
+  redis: ""
+  session_secret: ""
