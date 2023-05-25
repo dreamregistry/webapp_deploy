@@ -2,4 +2,3 @@ type: deployment
 dependencies:
   redis: ""
   session_secret: ""
-  docker_build: ""
