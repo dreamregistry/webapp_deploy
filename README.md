@@ -1,7 +1,7 @@
 # WEB APP DEPLOY
 
 The development version of a DReAM package that deploys a web app to ECS secured
-with Cognito oidc sidecar.
+with Auth0 oidc sidecar.
 
 ## Usage
 

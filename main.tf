@@ -1,5 +1,5 @@
 terraform {
-  backend "s3" {}
+#  backend "s3" {}
 
   required_providers {
     docker = {
@@ -27,6 +27,7 @@ provider "aws" {}
 provider "local" {}
 
 locals {
+  project_name   = var.project_name != null ? var.project_name : basename(var.dream_project_dir)
   non_secret_env = {
     for k, v in var.dream_env : k => try(tostring(v), null)
   }
@@ -40,13 +41,13 @@ locals {
   }
 
   oidc_env = {
-    OIDC_CLIENT_ID           = module.cognito_app.OIDC_CLIENT_ID
+    OIDC_CLIENT_ID           = module.auth0_oidc.OIDC_CLIENT_ID
     OIDC_CLIENT_SECRET       = data.aws_ssm_parameter.oidc_client_secret.value
-    OIDC_ISSUER_URL          = module.cognito_app.OIDC_ISSUER_URL
-    OIDC_DISCOVERY_URL       = module.cognito_app.OIDC_DISCOVERY_URL
-    OIDC_LOGOUT_URL          = module.cognito_app.OIDC_LOGOUT_URL
-    OIDC_LOGOUT_REDIRECT_URL = module.cognito_app.OIDC_LOGOUT_REDIRECT_URL
-    OIDC_CALLBACK_URL        = module.cognito_app.OIDC_CALLBACK_URL
+    OIDC_ISSUER_URL          = module.auth0_oidc.OIDC_ISSUER_URL
+    OIDC_DISCOVERY_URL       = module.auth0_oidc.OIDC_DISCOVERY_URL
+    OIDC_LOGOUT_URL          = module.auth0_oidc.OIDC_LOGOUT_URL
+    OIDC_LOGOUT_REDIRECT_URL = module.auth0_oidc.OIDC_LOGOUT_REDIRECT_URL
+    OIDC_CALLBACK_URL        = module.auth0_oidc.OIDC_CALLBACK_URL
   }
 
   env = toset([
@@ -57,7 +58,9 @@ locals {
 
   url_parse_regex          = "(?:(?P<scheme>[^:/?#]+):)?(?://(?P<authority>[^/?#]*))?(?P<path>[^?#]*)(?:\\?(?P<query>[^#]*))?(?:#(?P<fragment>.*))?"
   root_url_parts           = regex(local.url_parse_regex, var.root_url)
+  //noinspection HILUnresolvedReference
   root_url_scheme          = local.root_url_parts.scheme
+  //noinspection HILUnresolvedReference
   root_url_authority       = local.root_url_parts.authority
   root_url_authority_parts = split(":", local.root_url_authority)
   root_url_host            = local.root_url_authority_parts[0]
@@ -68,7 +71,7 @@ locals {
 }
 
 data "aws_ssm_parameter" "oidc_client_secret" {
-  name = module.cognito_app.OIDC_CLIENT_SECRET.key
+  name = module.auth0_oidc.OIDC_CLIENT_SECRET.key
 }
 
 data "aws_ssm_parameter" "secret_env" {
@@ -139,10 +142,9 @@ resource "docker_container" "oidc_sidecar" {
   }
 }
 
-module "cognito_app" {
-  source                   = "github.com/hereya/terraform-modules//cognito-app/module?ref=v0.16.0"
-  app_base_url             = "http://localhost:${var.port}"
-  cognito_user_pool_domain = var.cognito_user_pool_domain
-  cognito_user_pool_id     = var.cognito_user_pool_id
+module "auth0_oidc" {
+  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.23.0"
+  auth0_custom_domain = var.auth0_custom_domain
+  root_url            = "http://localhost:${var.port}"
+  app_name_prefix     = local.project_name
 }
-
