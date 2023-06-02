@@ -143,7 +143,7 @@ resource "docker_container" "oidc_sidecar" {
 }
 
 module "auth0_oidc" {
-  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.23.0"
+  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.24.0"
   auth0_custom_domain = var.auth0_custom_domain
   root_url            = "http://localhost:${var.port}"
   app_name_prefix     = local.project_name
