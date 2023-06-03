@@ -81,6 +81,8 @@ static_resources:
       # The type "STRICT_DNS" will load balance between all IPs in the DNS response.
       type: STRICT_DNS
       connect_timeout: 500s
+      http2_protocol_options:
+        allow_connect: true
       load_assignment:
         cluster_name: app
         endpoints:
