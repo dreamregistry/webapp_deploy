@@ -79,8 +79,6 @@ static_resources:
       # The type "STRICT_DNS" will load balance between all IPs in the DNS response.
       type: STRICT_DNS
       connect_timeout: 500s
-      # nc only accepts 1 message, do not keep the connection alive.
-      max_requests_per_connection: 1
       load_assignment:
         cluster_name: app
         endpoints:
