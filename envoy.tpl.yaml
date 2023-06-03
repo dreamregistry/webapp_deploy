@@ -30,6 +30,8 @@ static_resources:
                 "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
                 # The human-readable prefix used when emitting statistics.
                 stat_prefix: ingress_http
+                upgrade_configs:
+                  - upgrade_type: websocket
 
                 # The static routing table used by this filter. Individual routes may also add "rate
                 # limit descriptors", essentially tags, to requests which may be referenced in the
