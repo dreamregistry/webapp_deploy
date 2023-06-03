@@ -9,6 +9,74 @@ with Auth0 oidc sidecar.
 dream add webapp_deploy
 ```
 
+## Example usage with NextJS (App Router)
+
+```typescript
+// src/app/auth.ts
+
+import {headers} from 'next/headers';
+import {redirect} from 'next/navigation';
+
+export async function authenticate(currentPath = '/') {
+    const auth = await fetch(process.env.AUTH_ENDPOINT!, {
+        headers: {
+            cookie: headers().get('cookie') ?? '',
+        }
+    })
+    if (auth.status !== 200) {
+        return redirect('/auth/login?state=' + encodeURIComponent(currentPath))
+    }
+
+    const {
+        userInfo: {sub: id, email, name, nickname},
+        accessToken
+    } = await auth.json() as AuthInfo
+    return {user: {id, email, name, nickname}, accessToken}
+}
+
+export async function getUser(currentPath = '/') {
+    const {user} = await authenticate(currentPath)
+    return user
+}
+
+export type UserInfo = {
+    sub: string
+    email: string
+    name: string
+    nickname: string
+    email_verified: boolean
+    picture: string
+    updated_at: string
+}
+
+export type AuthInfo = {
+    accessToken: string
+    expiresAt: number
+    userInfo: UserInfo
+}
+```
+
+In your server component:
+
+```tsx
+// src/app/page.tsx
+export default async function Home() {
+    const user = await getUser()
+
+    return (
+        <main>
+            <h3>Welcome {user.name}</h3>
+
+            <div>
+                <a href="/auth/logout">
+                    Logout
+                </a>
+            </div>
+        </main>
+    )
+}
+```
+
 ## Available endpoints
 
 This package deploys an authentication service sidecar that exposes some
@@ -30,7 +98,8 @@ use inside your app:
     "email_verified": "<true | false>",
     "name": "<user's full name>",
     "email": "<user's email>",
-    "username": "<user's username>"
+    "username": "<user's username>",
+    "nickname": "<user's nickname>",
   },
   "expiresAt": <unix_timestamp> # in seconds.
 }
