@@ -40,16 +40,6 @@ locals {
     for k in var.dream_secrets : k => data.aws_ssm_parameter.secret_env[k].value
   }
 
-  oidc_env = {
-    OIDC_CLIENT_ID           = module.auth0_oidc.OIDC_CLIENT_ID
-    OIDC_CLIENT_SECRET       = data.aws_ssm_parameter.oidc_client_secret.value
-    OIDC_ISSUER_URL          = module.auth0_oidc.OIDC_ISSUER_URL
-    OIDC_DISCOVERY_URL       = module.auth0_oidc.OIDC_DISCOVERY_URL
-    OIDC_LOGOUT_URL          = module.auth0_oidc.OIDC_LOGOUT_URL
-    OIDC_LOGOUT_REDIRECT_URL = module.auth0_oidc.OIDC_LOGOUT_REDIRECT_URL
-    OIDC_CALLBACK_URL        = module.auth0_oidc.OIDC_CALLBACK_URL
-  }
-
   env = toset([
     for k, v in merge(local.oidc_env, local.non_secret_cleaned, local.secret_env, {
       REDIS_HOST = "host.docker.internal"
@@ -68,10 +58,6 @@ locals {
     "localhost", "127.0.0.1"
   ], local.root_url_host) ? "host.docker.internal" : local.root_url_host
   app_port = length(local.root_url_authority_parts) == 2 ? local.root_url_authority_parts[1] : (local.root_url_scheme == "https" ? "443" : "80")
-}
-
-data "aws_ssm_parameter" "oidc_client_secret" {
-  name = module.auth0_oidc.OIDC_CLIENT_SECRET.key
 }
 
 data "aws_ssm_parameter" "secret_env" {
@@ -142,9 +128,3 @@ resource "docker_container" "oidc_sidecar" {
   }
 }
 
-module "auth0_oidc" {
-  source              = "github.com/hereya/terraform-modules//auth0-oidc/module?ref=v0.26.0"
-  auth0_custom_domain = var.auth0_custom_domain
-  root_url            = "http://localhost:${var.port}"
-  app_name_prefix     = local.project_name
-}

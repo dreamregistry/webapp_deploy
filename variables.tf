@@ -6,6 +6,25 @@ variable "root_url" {
 variable "auth0_custom_domain" {
   type        = string
   description = "Auth0 custom domain"
+  default     = null
+}
+
+variable "use_cognito" {
+  type        = bool
+  description = "Use AWS Cognito for authentication"
+  default     = false
+}
+
+variable "cognito_user_pool_id" {
+  type        = string
+  description = "The name of the user pool to create the app client in"
+  default     = null
+}
+
+variable "cognito_user_pool_domain" {
+  type        = string
+  description = "The fully-qualified domain name of the user pool"
+  default     = null
 }
 
 variable "port" {
