@@ -108,7 +108,7 @@ resource "docker_container" "envoy" {
 }
 
 resource "docker_image" "oidc_sidecar" {
-  name         = "public.ecr.aws/hereya/oidc-sidecar:fb22c23"
+  name         = "public.ecr.aws/hereya/oidc-sidecar:f5191a4"
   keep_locally = true
 }
 
