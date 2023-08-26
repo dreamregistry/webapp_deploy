@@ -11,6 +11,79 @@ dream add webapp_deploy
 
 ## Example usage with NextJS (App Router)
 
+### Using companion npm package `@hereya/auth-proxy-client-next`
+
+- Install the package:
+
+```shell
+npm install @hereya/auth-proxy-client-next
+```
+
+- Get user in server component:
+
+```tsx
+// src/app/page.tsx
+import {AuthProxyClient} from '@hereya/auth-proxy-client-next';
+
+const proxy = new AuthProxyClient();
+
+export default async function Home() {
+    const user = await proxy.getUser()
+
+    return (
+        <main>
+            <h3>Welcome {user.name}</h3>
+            <div>
+                <a href="/auth/logout">
+                    Logout
+                </a>
+            </div>
+        </main>
+    )
+}
+```
+
+- Emit authenticated requests from server component:
+
+```tsx
+// src/app/page.tsx
+import {AuthProxyClient} from '@hereya/auth-proxy-client-next';
+
+const proxy = new AuthProxyClient();
+
+export default async function Home() {
+    const data: { result: string } = await proxy.request(
+        process.env.API_URL!, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({foo: 'bar'}),
+        }
+    ).then(response => response.json())
+
+    return (
+        <main>
+            <h3>Welcome</h3>
+
+            <p>{data.result}</p>
+
+            <div>
+                <a href="/auth/logout">
+                    Logout
+                </a>
+            </div>
+        </main>
+    )
+}
+```
+
+`request` method accepts the same arguments as `fetch` and an optional
+third argument which is the current page path. This is used for redirecting the
+user after login if she is not connected.
+
+### Manual integration
+
 ```typescript
 // src/app/auth.ts
 
