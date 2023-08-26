@@ -10,9 +10,9 @@ locals {
     OIDC_LOGOUT_REDIRECT_URL = local.oidc_module.OIDC_LOGOUT_REDIRECT_URL
     OIDC_CALLBACK_URL        = local.oidc_module.OIDC_CALLBACK_URL
   }
-  custom_scopes = join(",", [
+  custom_scopes = concat( [
     for k, v in var.dream_env : split(" ", v) if startsWith(k, "OIDC_SCOPES_")
-  ])
+  ]...)
 }
 
 data "aws_ssm_parameter" "oidc_client_secret" {
