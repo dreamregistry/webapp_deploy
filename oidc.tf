@@ -10,6 +10,9 @@ locals {
     OIDC_LOGOUT_REDIRECT_URL = local.oidc_module.OIDC_LOGOUT_REDIRECT_URL
     OIDC_CALLBACK_URL        = local.oidc_module.OIDC_CALLBACK_URL
   }
+  custom_scopes = join(",", [
+    for k, v in var.dream_env : split(" ", v) if startsWith(k, "OIDC_SCOPES_")
+  ])
 }
 
 data "aws_ssm_parameter" "oidc_client_secret" {
@@ -34,8 +37,9 @@ module "auth0_oidc" {
 
 module "cognito_app" {
   count                    = var.use_cognito ? 1 : 0
-  source                   = "github.com/hereya/terraform-modules//cognito-app/module?ref=v0.26.0"
+  source                   = "github.com/hereya/terraform-modules//cognito-app/module?ref=v0.31.0"
   cognito_user_pool_domain = var.cognito_user_pool_domain
   cognito_user_pool_id     = var.cognito_user_pool_id
   app_base_url             = "http://localhost:${var.port}"
+  custom_scopes            = local.custom_scopes
 }
