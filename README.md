@@ -19,7 +19,7 @@ dream add webapp_deploy
 npm install @hereya/auth-proxy-client-next
 ```
 
-- Get user in server component:
+- Get user in a server component:
 
 ```tsx
 // src/app/page.tsx
@@ -43,7 +43,7 @@ export default async function Home() {
 }
 ```
 
-- Emit authenticated requests from server component:
+- Emit authenticated requests from a server component:
 
 ```tsx
 // src/app/page.tsx
