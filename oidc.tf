@@ -11,7 +11,7 @@ locals {
     OIDC_CALLBACK_URL        = local.oidc_module.OIDC_CALLBACK_URL
   }
   custom_scopes = concat( [
-    for k, v in var.dream_env : split(" ", v) if startsWith(k, "OIDC_SCOPES_")
+    for k, v in var.dream_env : split(" ", v) if startswith(k, "OIDC_SCOPES_")
   ]...)
 }
 
