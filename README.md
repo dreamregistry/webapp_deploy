@@ -9,7 +9,85 @@ with Auth0 oidc sidecar.
 dream add webapp_deploy
 ```
 
-## Example usage with NextJS (App Router)
+## Integration in [Remix](https://remix.run) app
+- Define the following function in your app:
+
+```ts
+// app/lib/auth.ts
+
+import { fetch, redirect } from '@remix-run/node'
+
+export default async function authenticate(request: Request) {
+  const auth = await fetch(process.env.AUTH_ENDPOINT!, {
+    headers: {
+      cookie: request.headers.get("Cookie") || "",
+    }
+  })
+  if (auth.status !== 200) {
+    throw redirect("/auth/login?state=" + encodeURIComponent(new URL(request.url).pathname))
+  }
+  return auth.json()
+}
+
+export type UserInfo = {
+  sub: string
+  email: string
+  name: string
+  nickname: string
+  email_verified: boolean
+  picture: string
+  updated_at: string
+}
+
+export type AuthInfo = {
+  accessToken: string
+  expiresAt: number
+  userInfo: UserInfo
+}
+
+```
+- In your loaders, use the authenticate function to authenticate requests:
+
+```tsx
+export async function loader({request}: LoaderArgs) {
+  const {
+    accessToken,
+    userInfo: {sub: userId, email, name}
+  } = await authenticate(request)
+
+  // ...
+
+  return json({
+    //...
+  })
+}
+```
+
+- Add the following Error Boundary to your root component to properly handle redirects to login page:
+
+```tsx
+// app/root.tsx
+
+// ...
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  useEffect(() => {
+    if(isRouteErrorResponse(error)) {
+      if (error.status === 404 && error.data.includes("/auth/login")) {
+        window.location.href = "/auth/login?state=" + encodeURIComponent(window.location.pathname)
+      }
+    }
+  }, [error])
+
+  return (
+          <></>
+  );
+}
+```
+
+## Example usage with Next.js (App Router)
 
 ### Using companion npm package `@hereya/auth-proxy-client-next`
 
