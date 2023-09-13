@@ -53,7 +53,7 @@ static_resources:
                         # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-msg-config-route-v3-routematch
                         - match:
                             # A match against the beginning of the :path pseudo-header.
-                            prefix: "/auth"
+                            prefix: "/auth/"
                           # The routing action to take if the request matches the conditions.
                           # https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/route/v3/route_components.proto#envoy-v3-api-msg-config-route-v3-routeaction
                           route:
